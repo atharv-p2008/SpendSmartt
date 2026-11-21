@@ -12,6 +12,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AppShell } from "@/components/finance/AppShell";
+import { LoadingScreen } from "@/components/finance/LoadingScreen";
+import { Toaster } from "@/components/ui/sonner";
+import { FinanceProvider } from "@/lib/finance/store";
 
 function NotFoundComponent() {
   return (
@@ -25,9 +29,9 @@ function NotFoundComponent() {
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            Back to dashboard
           </Link>
         </div>
       </div>
@@ -57,13 +61,13 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Try again
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex items-center justify-center rounded-lg border border-input bg-background px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
           >
             Go home
           </a>
@@ -75,26 +79,29 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
-    // Replace these placeholders with the app's name and description when first building the app.
-    // Each content route, / included, must still set its own head(). Never add og:image or
-    // twitter:image here: every page without its own would inherit the root's preview image.
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "SpendSmart — Student Finance Manager" },
+      {
+        name: "description",
+        content: "SpendSmart helps students track expenses, set budgets and reach savings goals. Take Control. Spend Smarter.",
+      },
+      { name: "author", content: "SpendSmart" },
+      { property: "og:title", content: "SpendSmart — Student Finance Manager" },
+      { property: "og:description", content: "Track expenses, budgets and savings goals in rupees. Take Control. Spend Smarter." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "theme-color", content: "#141a33" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap",
       },
+      { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
@@ -106,7 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <head>
         <HeadContent />
       </head>
@@ -123,8 +130,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <FinanceProvider fallback={<LoadingScreen />}>
+        <AppShell>
+          {/* Required: nested routes render here. */}
+          <Outlet />
+        </AppShell>
+      </FinanceProvider>
+      <Toaster position="top-right" richColors closeButton />
     </QueryClientProvider>
   );
 }
